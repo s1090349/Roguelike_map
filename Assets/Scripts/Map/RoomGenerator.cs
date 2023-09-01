@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,8 +13,9 @@ public class RoomGenerator : MonoBehaviour
     [Header("房間信息")]
     public GameObject roomPrefab;
     public int roomNumber;
-    public Color startColor, endColor;
-    public GameObject endRoom;
+    public UnityEngine.Color startColor, endColor, bossColor; //开始房间、终点房、boss房颜色
+    private GameObject endRoom;//最后的房间
+    private GameObject bossRoom;//boss的房间
 
     [Header("位置控制")]
     public Transform generatorPoint;
@@ -30,7 +32,7 @@ public class RoomGenerator : MonoBehaviour
 
     List<GameObject> lessFarRooms = new List<GameObject>();
 
-    List<GameObject> oneWayRooms= new List<GameObject>();
+    List<GameObject> oneWayRooms = new List<GameObject>();
 
 
     public WallType wallType;
@@ -50,6 +52,33 @@ public class RoomGenerator : MonoBehaviour
 
         foreach (var room in rooms)
         {
+            //sqrMagnitude 是指向量长度的平方,用于比较向量之间的大小
+            if (room.transform.position.sqrMagnitude > endRoom.transform.position.sqrMagnitude)
+            {
+                endRoom = room.gameObject;
+            }
+        }
+        endRoom.GetComponent<SpriteRenderer>().color = endColor;
+
+        //已最远房间为起点，在周围创建一个boss房
+        //以最远房间为起点，在周围创建一个boss房
+        Vector3[] offsets = { new Vector3(0, yOffset, 0), new Vector3(0, -yOffset, 0), new Vector3(-xOffset, 0, 0), new Vector3(xOffset, 0, 0) };
+        foreach (Vector3 offset in offsets)
+        {
+            Vector3 bossPosition = endRoom.transform.position;
+            bossPosition += offset;
+            if (!IfPositionCreated(bossPosition))
+            {
+                bossRoom = Instantiate(roomPrefab, bossPosition, Quaternion.identity);
+                rooms.Add(bossRoom.GetComponent<Room>());
+                bossRoom.GetComponent<SpriteRenderer>().color = bossColor;
+                break;
+            }
+        }
+
+
+        foreach (var room in rooms)
+        {
             //if (room.transform.position.sqrMagnitude > endRoom.transform.position.sqrMagnitude)
             //{
             //    endRoom = room.gameObject;
@@ -58,8 +87,8 @@ public class RoomGenerator : MonoBehaviour
         }
         FindEndRoom();
 
-        endRoom.GetComponent<SpriteRenderer>().color = endColor;
     }
+
 
     // Update is called once per frame
     void Update()
@@ -99,15 +128,25 @@ public class RoomGenerator : MonoBehaviour
                     generatorPoint.position += new Vector3(xOffset, 0, 0);
                     break;
             }
-        } while (Physics2D.OverlapCircle(generatorPoint.position,0.2f, roomLayer));
+        } while (Physics2D.OverlapCircle(generatorPoint.position, 0.2f, roomLayer));
+    }
+
+    public bool IfPositionCreated(Vector3 position)
+    {
+        foreach (var room in rooms)
+        {
+            if (room.gameObject.transform.position == position) return true;
+        }
+        return false;
     }
 
     public void SetupRoom(Room newRoom, Vector3 roomPosition)
     {
-        newRoom.roomUp = Physics2D.OverlapCircle(roomPosition + new Vector3(0, yOffset, 0), 0.2f, roomLayer);
-        newRoom.roomDown = Physics2D.OverlapCircle(roomPosition + new Vector3(0, -yOffset, 0), 0.2f, roomLayer);
-        newRoom.roomLeft = Physics2D.OverlapCircle(roomPosition + new Vector3(-xOffset, 0, 0), 0.2f, roomLayer);
-        newRoom.roomRight = Physics2D.OverlapCircle(roomPosition + new Vector3(xOffset, 0, 0), 0.2f, roomLayer);
+        newRoom.roomRight = IfPositionCreated(roomPosition + new Vector3(xOffset, 0, 0));
+        newRoom.roomLeft = IfPositionCreated(roomPosition + new Vector3(-xOffset, 0, 0));
+        newRoom.roomUp = IfPositionCreated(roomPosition + new Vector3(0, yOffset, 0));
+        newRoom.roomDown = IfPositionCreated(roomPosition + new Vector3(0, -yOffset, 0));
+
 
         newRoom.UpdateRoom(xOffset, yOffset);
 
@@ -198,10 +237,10 @@ public class RoomGenerator : MonoBehaviour
 
 [System.Serializable]
 
-public class WallType 
+public class WallType
 {
     public GameObject singleLeft, singleRight, singleUp, singleDown,
                       doubleDL, doubleDR, doubleRL, doubleUD, doubleUR, doubleUL,
                       tripleDUL, tripleDUR, tripleRLD, tripleURL,
-                      fourDoors;  
+                      fourDoors;
 }
