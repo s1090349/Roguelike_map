@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - tp
+  - Monster
+  - BossRoom
   layers:
   - Default
   - TransparentFX
@@ -47,6 +49,9 @@ TagManager:
     locked: 0
   - name: Door
     uniqueID: 1821123973
+    locked: 0
+  - name: Monster
+    uniqueID: 1762626239
     locked: 0
   - name: Player
     uniqueID: 4898309

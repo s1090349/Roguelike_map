@@ -72,6 +72,7 @@ public class RoomGenerator : MonoBehaviour
                 bossRoom = Instantiate(roomPrefab, bossPosition, Quaternion.identity);
                 rooms.Add(bossRoom.GetComponent<Room>());
                 bossRoom.GetComponent<SpriteRenderer>().color = bossColor;
+                bossRoom.tag = "BossRoom";
                 break;
             }
         }
@@ -87,6 +88,7 @@ public class RoomGenerator : MonoBehaviour
         }
         FindEndRoom();
 
+        
     }
 
 
@@ -105,6 +107,7 @@ public class RoomGenerator : MonoBehaviour
         //{
         //    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         //}
+
     }
 
     public void ChangePointPos()
@@ -232,6 +235,14 @@ public class RoomGenerator : MonoBehaviour
         {
             endRoom = farRooms[Random.Range(0, farRooms.Count)];
         }
+    }
+
+    public string GetCurrentRoomTag(GameObject room)
+    {
+        // 获取特定房间的标签
+        string roomTag = room.tag;
+
+        return roomTag;
     }
 }
 
