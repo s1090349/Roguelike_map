@@ -7,6 +7,7 @@ TagManager:
   - tp
   - Monster
   - BossRoom
+  - BasicRoom
   layers:
   - Default
   - TransparentFX

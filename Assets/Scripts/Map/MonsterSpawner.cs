@@ -24,8 +24,8 @@ public class MonsterSpawner : MonoBehaviour
                 // 实例化怪物并放置在生成位置
                 GameObject spawnedMonster = Instantiate(selectedMonsterPrefab, randomSpawnPosition, Quaternion.identity);
             }
-            Debug.Log("生成怪物");
-        
+
+        print(monsterPrefabs.Length);
 
 
     }

@@ -12,6 +12,7 @@ public class RoomGenerator : MonoBehaviour
 
     [Header("房間信息")]
     public GameObject roomPrefab;
+    public GameObject BossroomPrefab;
     public int roomNumber;
     public UnityEngine.Color startColor, endColor, bossColor; //开始房间、终点房、boss房颜色
     private GameObject endRoom;//最后的房间
@@ -69,10 +70,9 @@ public class RoomGenerator : MonoBehaviour
             bossPosition += offset;
             if (!IfPositionCreated(bossPosition))
             {
-                bossRoom = Instantiate(roomPrefab, bossPosition, Quaternion.identity);
+                bossRoom = Instantiate(BossroomPrefab, bossPosition, Quaternion.identity);
                 rooms.Add(bossRoom.GetComponent<Room>());
                 bossRoom.GetComponent<SpriteRenderer>().color = bossColor;
-                bossRoom.tag = "BossRoom";
                 break;
             }
         }
@@ -237,13 +237,13 @@ public class RoomGenerator : MonoBehaviour
         }
     }
 
-    public string GetCurrentRoomTag(GameObject room)
-    {
-        // 获取特定房间的标签
-        string roomTag = room.tag;
-
-        return roomTag;
-    }
+    //public string Getcurrentroomtag(gameobject room)
+    //{
+    //    获取特定房间的标签
+    //    string roomtag = room.tag;
+    //    print(roomtag);
+    //    return roomtag;
+    //}
 }
 
 [System.Serializable]
