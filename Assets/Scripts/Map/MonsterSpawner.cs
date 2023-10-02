@@ -25,7 +25,7 @@ public class MonsterSpawner : MonoBehaviour
                 GameObject spawnedMonster = Instantiate(selectedMonsterPrefab, randomSpawnPosition, Quaternion.identity);
             }
 
-        print(monsterPrefabs.Length);
+        //print(monsterPrefabs.Length);
 
 
     }

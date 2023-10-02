@@ -2,79 +2,52 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
-    public float moveSpeed;
-    public LayerMask solidObjectsLayer;
-    public LayerMask grassLayer;
+    Rigidbody2D rb;
 
+    Animator anim;
     public event Action OnEncountered;
-
-    private bool isMoving;
-    private Vector2 input;
-    private Animator animator;
-    private void Awake()
+    public float speed;
+    Vector2 movement;
+    void Start()
     {
-
-        animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
     }
 
-    public void HandleUpdate()
+    // Update is called once per frame
+    void Update()
     {
-        if(!isMoving)
+        movement.x = Input.GetAxisRaw("Horizontal");
+        movement.y = Input.GetAxisRaw("Vertical");
+
+        if (movement.x != 0)
         {
-            input.x = Input.GetAxisRaw("Horizontal");
-            input.y = Input.GetAxisRaw("Vertical");
-
-            if(input.x != 0) input.y = 0;
-
-            if (input != Vector2.zero)
-            {
-                animator.SetFloat("moveX", input.x); 
-                animator.SetFloat("moveY", input.y);
-                var targetPos = transform.position;
-                targetPos.x += input.x;
-                targetPos.y += input.y;
-
-                if(IsWalkable(targetPos))   
-                StartCoroutine(Move(targetPos));   
-            }
+            transform.localScale = new Vector3(movement.x, 1, 1);
         }
-        animator.SetBool("isMoving",isMoving);
+        SwitchAnim();
     }
 
-    IEnumerator Move(Vector3 targetPos)
+    private void FixedUpdate()
     {
-        isMoving = true;
-        while((targetPos - transform.position).sqrMagnitude > Mathf.Epsilon)
-        {
-            transform.position = Vector3.MoveTowards(transform.position,targetPos, moveSpeed*Time.deltaTime);
-            yield return null;
-        }
-        transform.position = targetPos;
-          isMoving = false;
-
-        //CheckForEncounters();
+        rb.MovePosition(rb.position + movement *speed*Time.fixedDeltaTime);
     }
-    private bool IsWalkable(Vector3 targetPos)
+
+    void SwitchAnim() 
     {
-        if(Physics2D.OverlapCircle(targetPos, 0.2f, solidObjectsLayer) !=null)
-        {
-             return false;
-        }
-        return true;
+        anim.SetFloat("speed", movement.magnitude);    
     }
 
-    //private void CheckForEncounters()
-    //{
-    //    if(Physics2D.OverlapCircle(transform.position, 0.2f, grassLayer)!=null)
-    //    {
-    //        if(UnityEngine.Random.Range(1,101)<=10)
-    //        {
-    //           animator.SetBool("isMoving",false);
-    //           OnEncountered();
-    //        }
-    //    }
-    //}
+    void OnCollisionEnter2D(Collision2D other)  //other是指碰撞到的東西 
+    {
+        if (other.gameObject.tag == "Monster")
+        {
+            OnEncountered();
+        }
+
+
+    }
 }
